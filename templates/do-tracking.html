@@ -1,0 +1,47 @@
+<div class="tracking-container">
+    <h3>Tracking Delivery Order</h3>
+    <input type="text" v-model="searchQuery" @keyup.enter="searchDO" @keyup.esc="clearSearch" placeholder="Cari No DO / NIM lalu Enter (Esc utk reset)" class="search-box">
+    
+    <div v-if="searchResult" class="result-card">
+        <h4>Hasil Pencarian: {{ searchResult.id }}</h4>
+        <p><strong>Nama:</strong> {{ searchResult.data.nama }} ({{ searchResult.data.nim }})</p>
+        <p><strong>Status:</strong> {{ searchResult.data.status }}</p>
+        
+        <ul>
+            <li v-for="j in searchResult.data.perjalanan">
+                {{ j.waktu }} - {{ j.keterangan }}
+            </li>
+        </ul>
+        <div class="add-progress">
+            <input type="text" v-model="newProgress" placeholder="Keterangan progress baru">
+            <button @click="addProgress">Tambah Progress</button>
+        </div>
+    </div>
+
+    <hr>
+    <h3>Buat Delivery Order Baru</h3>
+    <div class="form-section">
+        <p><strong>No DO:</strong> {{ newDO.id }} <i>(Otomatis)</i></p>
+        <input type="text" v-model="newDO.nim" placeholder="NIM">
+        <input type="text" v-model="newDO.nama" placeholder="Nama Mahasiswa">
+        <select v-model="newDO.ekspedisi">
+            <option value="">-- Pilih Ekspedisi --</option>
+            <option v-for="eks in pengirimanList" :value="eks.nama">{{ eks.nama }}</option>
+        </select>
+        
+        <select v-model="newDO.paket" @change="updateTotalHarga">
+            <option value="">-- Pilih Paket Bahan Ajar --</option>
+            <option v-for="p in paketList" :value="p.kode">{{ p.kode }} - {{ p.nama }}</option>
+        </select>
+        
+        <!-- detail isi paket -->
+        <div class="paket-detail" v-if="selectedPaketObj">
+            <strong>Isi Paket:</strong> {{ selectedPaketObj.isi.join(', ') }}
+        </div>
+
+        <input type="date" v-model="newDO.tanggalKirim">
+        <p><strong>Total Harga:</strong> {{ formatRp(newDO.total) }}</p>
+
+        <button @click="submitDO">Buat DO Baru</button>
+    </div>
+</div>

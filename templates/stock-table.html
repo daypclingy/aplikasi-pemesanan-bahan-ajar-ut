@@ -1,0 +1,83 @@
+<div class="stock-container">
+    <h3>Filter & Sort Stok</h3>
+    <div class="filter-section">
+        <select v-model="filterUpbjj">
+            <option value="">-- Pilih UT Daerah --</option>
+            <option v-for="upbjj in upbjjList" :value="upbjj">{{ upbjj }}</option>
+        </select>
+        
+        <!-- Filter Kategori hanya aktif jika UT Daerah dipilih (Dependent options) -->
+        <select v-model="filterKategori" :disabled="!filterUpbjj">
+            <option value="">-- Pilih Kategori --</option>
+            <option v-for="kat in kategoriList" :value="kat">{{ kat }}</option>
+        </select>
+
+        <label>
+            <input type="checkbox" v-model="filterWarning"> 
+            Hanya tampilkan stok menipis/kosong
+        </label>
+        
+        <select v-model="sortBy">
+            <option value="">-- Urutkan Berdasarkan --</option>
+            <option value="judul">Nama Mata Kuliah</option>
+            <option value="qty">Jumlah Stok</option>
+            <option value="harga">Harga</option>
+        </select>
+        <button @click="resetFilter">Reset Filter</button>
+    </div>
+
+    <h3>Daftar Stok Bahan Ajar</h3>
+    <table border="1" cellpadding="10" cellspacing="0">
+        <thead>
+            <tr>
+                <th>Kode</th>
+                <th>Nama Matkul</th>
+                <th>Kategori</th>
+                <th>UT-Daerah</th>
+                <th>Lokasi Rak</th>
+                <th>Harga</th>
+                <th>Stok</th>
+                <th>Safety</th>
+                <th>Status</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr v-for="(item, index) in filteredAndSortedStok" :key="item.kode">
+                <td>{{ item.kode }}</td>
+                <td>{{ item.judul }}</td>
+                <td>{{ item.kategori }}</td>
+                <td>{{ item.upbjj }}</td>
+                <td>{{ item.lokasiRak }}</td>
+                <td>{{ formatRp(item.harga) }}</td>
+                <td>{{ item.qty }} buah</td>
+                <td>{{ item.safety }} buah</td>
+                <td :class="statusClass(item.qty, item.safety)" :title="stripHtml(item.catatanHTML)">
+                    {{ statusText(item.qty, item.safety) }}
+                </td>
+                <td>
+                    <button @click="editItem(item)">Edit</button>
+                    <button @click="deleteItem(item.kode)">Hapus</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <hr>
+    <h3>{{ isEditing ? 'Edit' : 'Tambah' }} Bahan Ajar</h3>
+    <small><i>Tekan 'Enter' pada field terakhir untuk menyimpan data.</i></small>
+    <div class="form-section" @keyup.enter="saveData">
+        <input type="text" v-model="formData.kode" placeholder="Kode Matkul" :disabled="isEditing">
+        <input type="text" v-model="formData.judul" placeholder="Nama Mata Kuliah">
+        <select v-model="formData.kategori">
+            <option v-for="kat in kategoriList" :value="kat">{{ kat }}</option>
+        </select>
+        <select v-model="formData.upbjj">
+            <option v-for="upbjj in upbjjList" :value="upbjj">{{ upbjj }}</option>
+        </select>
+        <input type="text" v-model="formData.lokasiRak" placeholder="Lokasi Rak (e.g. R1-A3)">
+        <input type="number" v-model="formData.harga" placeholder="Harga">
+        <input type="number" v-model="formData.qty" placeholder="Jumlah Stok">
+        <input type="number" v-model="formData.safety" placeholder="Safety Stock">
+    </div>
+</div>
